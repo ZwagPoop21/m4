@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "/grpc";
+
+message Message {
+    int32 id = 1;
+    int32 timestamp = 2;
+    string state = 3;
+}
+
+service ProcessService {
+    rpc Process(stream Message) returns (stream Message);
+}
+
