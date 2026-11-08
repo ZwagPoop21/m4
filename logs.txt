@@ -1,0 +1,60 @@
+----- 1 NODE requests access to CS -----
+
+NODE (ID = 1):
+2026/11/08 15:04:01 Server started on node {id: 1, port: :5001} 
+2026/11/08 15:04:39 Requesting at {local timestamp: %!s(int32=1)} to enter CRITICAL SECTION 
+2026/11/08 15:04:39 Requested at {local timestamp: %!s(int32=2)} access to CRITICAL SECTION from node: {id: 2, port: :5002} 
+2026/11/08 15:04:39 Requested at {local timestamp: %!s(int32=3)} access to CRITICAL SECTION from node: {id: 3, port: :5003} 
+2026/11/08 15:04:39 Retrieved at {local timestamp: %!s(int32=5)} released reply from node: {id: 2, port: :5002, timestamp: %!s(int32=4)} 
+2026/11/08 15:04:39 Retrieved at {local timestamp: %!s(int32=6)} released reply from node: {id: 3, port: :5003, timestamp: %!s(int32=5)} 
+2026/11/08 15:04:39 Entered CRITICAL SECTION at {local timestamp: %!s(int32=6)} 
+2026/11/08 15:04:42 Left CRITICAL SECTION at {local timestamp: %!s(int32=6)}
+
+NODE (ID = 2):
+2026/11/08 15:04:08 Server started on node {id: 2, port: :5002} 
+2026/11/08 15:04:39 Retrieved at {local timestamp: %!s(int32=3)} wanted request from node: {id: 1, port: :5001, timestamp: %!s(int32=2)} 
+2026/11/08 15:04:39 Replying (RELEASED) at {local timestamp: %!s(int32=3)} to node: {id: 1, port: :5001} 
+
+NODE (ID = 3):
+2026/11/08 15:04:11 Server started on node {id: 3, port: :5003} 
+2026/11/08 15:04:39 Retrieved at {local timestamp: %!s(int32=4)} wanted request from node: {id: 1, port: :5001, timestamp: %!s(int32=3)} 
+2026/11/08 15:04:39 Replying (RELEASED) at {local timestamp: %!s(int32=4)} to node: {id: 1, port: :5001} 
+
+
+
+
+
+----- 2 NODES request access (NODE ID = 2, DID IT FIRST) -----
+
+NODE (ID = 1)
+2026/11/08 15:07:44 Server started on node {id: 1, port: :5001} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=3)} wanted request from node: {id: 2, port: :5002, timestamp: %!s(int32=2)} 
+2026/11/08 15:08:01 Replying (RELEASED) at {local timestamp: %!s(int32=3)} to node: {id: 2, port: :5002} 
+2026/11/08 15:08:01 Requesting at {local timestamp: %!s(int32=5)} to enter CRITICAL SECTION 
+2026/11/08 15:08:01 Requested at {local timestamp: %!s(int32=6)} access to CRITICAL SECTION from node: {id: 2, port: :5002} 
+2026/11/08 15:08:01 Requested at {local timestamp: %!s(int32=7)} access to CRITICAL SECTION from node: {id: 3, port: :5003} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=10)} released reply from node: {id: 3, port: :5003, timestamp: %!s(int32=9)} 
+2026/11/08 15:08:04 Retrieved at {local timestamp: %!s(int32=11)} released reply from node: {id: 2, port: :5002, timestamp: %!s(int32=9)} 
+2026/11/08 15:08:04 Entered CRITICAL SECTION at {local timestamp: %!s(int32=11)} 
+2026/11/08 15:08:07 Left CRITICAL SECTION at {local timestamp: %!s(int32=11)} 
+
+NODE (ID = 2)
+2026/11/08 15:07:47 Server started on node {id: 2, port: :5002} 
+2026/11/08 15:08:01 Requesting at {local timestamp: %!s(int32=1)} to enter CRITICAL SECTION 
+2026/11/08 15:08:01 Requested at {local timestamp: %!s(int32=2)} access to CRITICAL SECTION from node: {id: 1, port: :5001} 
+2026/11/08 15:08:01 Requested at {local timestamp: %!s(int32=3)} access to CRITICAL SECTION from node: {id: 3, port: :5003} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=6)} released reply from node: {id: 3, port: :5003, timestamp: %!s(int32=5)} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=7)} released reply from node: {id: 1, port: :5001, timestamp: %!s(int32=4)} 
+2026/11/08 15:08:01 Entered CRITICAL SECTION at {local timestamp: %!s(int32=7)} 
+2026/11/08 15:08:04 Left CRITICAL SECTION at {local timestamp: %!s(int32=7)} 
+2026/11/08 15:08:04 Retrieved at {local timestamp: %!s(int32=8)} wanted request from node: {id: 1, port: :5001, timestamp: %!s(int32=6)} 
+2026/11/08 15:08:04 Replying (RELEASED) at {local timestamp: %!s(int32=8)} to node: {id: 1, port: :5001} 
+
+NODE (ID = 3)
+2026/11/08 15:07:50 Server started on node {id: 3, port: :5003} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=4)} wanted request from node: {id: 2, port: :5002, timestamp: %!s(int32=3)} 
+2026/11/08 15:08:01 Replying (RELEASED) at {local timestamp: %!s(int32=4)} to node: {id: 2, port: :5002} 
+2026/11/08 15:08:01 Retrieved at {local timestamp: %!s(int32=8)} wanted request from node: {id: 1, port: :5001, timestamp: %!s(int32=7)} 
+2026/11/08 15:08:01 Replying (RELEASED) at {local timestamp: %!s(int32=8)} to node: {id: 1, port: :5001} 
+
+

@@ -50,12 +50,13 @@ func (n *node) Process(stream pb.ProcessService_ProcessServer) error {
 func (n *node) handleWantedRequest(msg *pb.Message) {
 	log.Printf("Retrieved at {local timestamp: %s} wanted request from node: {id: %d, port: %s, timestamp: %s} \n", n.timestamp, msg.Id, n.nodes[msg.Id], msg.Timestamp)
 	n.mu.Lock()
-	defer n.mu.Unlock()
 
 	if n.state == "HELD" || (n.state == "WANTED" &&
 		((n.requestTimestamp < msg.Timestamp) || ((n.requestTimestamp == msg.Timestamp) && n.id < msg.Id))) {
 		n.standbyNodes = append(n.standbyNodes, msg.Id)
+		n.mu.Unlock()
 	} else {
+		n.mu.Unlock()
 		n.reply(msg.Id)
 	}
 }
@@ -66,7 +67,7 @@ func (n *node) handleReleasedReply(msg *pb.Message) {
 	if n.state == "WANTED" {
 		n.repliesRecieved++
 
-		if n.repliesRecieved == (len(n.nodes) - 1) {
+		if n.repliesRecieved == (len(n.nodes)) {
 			n.state = "HELD"
 			n.mu.Unlock()
 			n.enterCS()
@@ -80,12 +81,14 @@ func (n *node) handleReleasedReply(msg *pb.Message) {
 
 func (n *node) reply(id int32) {
 	log.Printf("Replying (RELEASED) at {local timestamp: %s} to node: {id: %d, port: %s} \n", n.timestamp, id, n.nodes[id])
+	n.mu.Lock()
 	n.timestamp++
 	msg := &pb.Message{
 		Id:        n.id,
 		Timestamp: n.timestamp,
 		State:     "RELEASED",
 	}
+	n.mu.Unlock()
 	n.streams[id].Send(msg)
 }
 
@@ -95,22 +98,27 @@ func (n *node) enterCS() {
 
 	n.mu.Lock()
 	n.state = "RELEASED"
-	n.mu.Unlock()
 	log.Printf("Left CRITICAL SECTION at {local timestamp: %s} \n", n.timestamp)
-
-	for _, id := range n.standbyNodes {
+	standbyNodes := n.standbyNodes
+	n.standbyNodes = n.standbyNodes[:0]
+	n.mu.Unlock()
+	for _, id := range standbyNodes {
 		n.reply(id)
 	}
+
 }
 
 func (n *node) requestCS() {
 	n.mu.Lock()
+	defer n.mu.Unlock()
+	if n.state != "RELEASED" {
+		return
+	}
 	n.state = "WANTED"
 	n.timestamp++
 	n.requestTimestamp = n.timestamp
 	n.repliesRecieved = 0
 	log.Printf("Requesting at {local timestamp: %s} to enter CRITICAL SECTION \n", n.timestamp)
-	n.mu.Unlock()
 
 	for id, stream := range n.streams {
 		n.timestamp++
@@ -203,9 +211,7 @@ func main() {
 		}
 
 		fmt.Scanln()
-		if n.state == "RELEASED" {
-			n.requestCS()
-		}
+		n.requestCS()
 	}
 
 	stop := make(chan os.Signal, 1)
